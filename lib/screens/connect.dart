@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'dart:async';
+import 'dart:typed_data';
 import 'package:permission_handler/permission_handler.dart';
 import 'footer.dart';
 import 'package:provider/provider.dart';
@@ -185,11 +186,20 @@ class _ConnectPageState extends State<ConnectPage> {
       bluetoothProvider.setConnection(connection, device);
       setState(() => _selectedDevice = device);
 
-      connection.input?.listen((_) {}, onDone: () {
+      // 🔹 Gelen veriyi dinle ve konsola yaz
+      connection.input?.listen((Uint8List data) {
+        String received = String.fromCharCodes(data).trim();
+        if (received.isNotEmpty) {
+          print("Gelen mesaj: $received"); // Konsola yazdırılıyor
+        }
+      }, onDone: () {
         bluetoothProvider.setConnection(null, null);
-      }, onError: (_) {
+        print("Bağlantı kapandı.");
+      }, onError: (error) {
         bluetoothProvider.setConnection(null, null);
+        print("Bağlantı hatası: $error");
       });
+
     } catch (e) {
       print('Bağlantı hatası: ${device.name} -> $e');
       bluetoothProvider.setConnection(null, null);
@@ -198,6 +208,7 @@ class _ConnectPageState extends State<ConnectPage> {
       if (_bluetoothState == BluetoothState.STATE_ON) _startDiscovery();
     }
   }
+
 
   void _disconnect() async {
     final bluetoothProvider = Provider.of<BluetoothProvider>(context, listen: false);
@@ -268,6 +279,7 @@ class _ConnectPageState extends State<ConnectPage> {
               Container(
                 height: screenSize.height * 0.15,
                 width: double.infinity,
+                margin: EdgeInsets.only(top: 0),
                 child: ImageWidget(
                   fit: BoxFit.cover,
                   showBluetoothStatus: true,
@@ -346,6 +358,7 @@ class _ConnectPageState extends State<ConnectPage> {
                         onPressed: _bluetoothState != BluetoothState.STATE_ON ? null : () {
                           if (bluetoothProvider.connectedDevice != null) {
                             _disconnect();
+                            setState(() => _selectedDevice = null);
                           } else if (_selectedDevice != null && !bluetoothProvider.isConnecting) {
                             _pairAndConnectToDevice(_selectedDevice!);
                           }

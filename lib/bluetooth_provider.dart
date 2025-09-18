@@ -25,11 +25,9 @@ class BluetoothProvider with ChangeNotifier {
   Future<void> disconnect() async {
     try {
       await _connection?.close();
-    }
-    catch (e) {
+    } catch (e) {
       print('Bağlantı kesme hatası: $e');
-    }
-    finally {
+    } finally {
       _connection = null;
       _connectedDevice = null;
       _isConnecting = false;
