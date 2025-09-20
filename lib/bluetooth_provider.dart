@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
+import 'dart:convert';
+import 'dart:typed_data';
+import 'package:provider/provider.dart';
+import '../language.dart'; // LanguageProvider'ı import et
 
 class BluetoothProvider with ChangeNotifier {
   BluetoothConnection? _connection;
@@ -32,6 +36,42 @@ class BluetoothProvider with ChangeNotifier {
       _connectedDevice = null;
       _isConnecting = false;
       notifyListeners();
+    }
+  }
+
+  Future<void> sendJsonData(Map<String, dynamic> data, BuildContext context) async {
+    final languageProvider = Provider.of<LanguageProvider>(context, listen: false);
+
+    if (_connection == null || !_connection!.isConnected) {
+      print('Bağlantı yok, veri gönderilemedi');
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(languageProvider.getTranslation('connection_failed')),
+        backgroundColor: Colors.red,
+      ));
+      return;
+    }
+
+    try {
+      String jsonString = jsonEncode(data);
+      List<int> bytes = utf8.encode(jsonString + '\n');
+      _connection!.output.add(Uint8List.fromList(bytes));
+      await _connection!.output.allSent;
+      print('JSON veri gönderildi: $jsonString');
+
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(languageProvider.getTranslation('data_sent_success')),
+        backgroundColor: Colors.green,
+      ));
+    }
+    catch (e) {
+      print('Veri gönderme hatası: $e');
+
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(languageProvider.getTranslation('data_send_failed')),
+        backgroundColor: Colors.red,
+      ));
+
+      disconnect();
     }
   }
 

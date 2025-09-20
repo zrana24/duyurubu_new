@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
-import '../bluetooth_provider.dart'; // BluetoothProvider'ı import edin
+import '../bluetooth_provider.dart';
 
 class LanguageProvider extends ChangeNotifier {
   Locale _locale = const Locale('tr', 'TR');
@@ -48,9 +48,6 @@ class LanguageProvider extends ChangeNotifier {
       'info_screen_': 'BİLGİ EKRAN',
       'screen_brightness': 'EKRAN PARLAKLIĞI',
       'add_content': 'İÇERİK EKLE',
-      'meeting_topic': 'Toplantı Konusu',
-      'project_evaluation': 'Proje Değerlendirme ve Geliştirme Süreçleri',
-      'budget_planning': 'Bütçe Planlaması',
       'excellent': 'MÜKEMMEL',
       'good': 'İYİ',
       'average': 'ORTA',
@@ -67,6 +64,9 @@ class LanguageProvider extends ChangeNotifier {
       'select_video': 'Video Seç',
       'select_document': 'Belge Seç',
       'document_selection': 'Belge seçme özelliği eklenecek',
+      'connection_failed':'Bağlantı yok, veri gönderilemedi',
+      'data_sent_success':'Veri başarıyla gönderildi',
+      'data_send_failed':'Veri gönderimi başarısız'
     },
     'en': {
       'name_screen': 'NAME SCREEN',
@@ -102,9 +102,6 @@ class LanguageProvider extends ChangeNotifier {
       'info_screen_': 'INFO SCREEN',
       'screen_brightness': 'SCREEN BRIGHTNESS',
       'add_content': 'ADD CONTENT',
-      'meeting_topic': 'Meeting Topic',
-      'project_evaluation': 'Project Evaluation and Development Processes',
-      'budget_planning': 'Budget Planning',
       'excellent': 'EXCELLENT',
       'good': 'GOOD',
       'average': 'AVERAGE',
@@ -121,6 +118,9 @@ class LanguageProvider extends ChangeNotifier {
       'select_video': 'Select Video',
       'select_document': 'Select Document',
       'document_selection': 'Document selection feature will be added',
+      'connection_failed':'No connection, data could not be sent',
+      'data_sent_success':'Data sent successfully',
+      'data_send_failed':'Data sending failed'
     },
     'ru': {
       'name_screen': 'ЭКРАН ИМЕН',
@@ -156,9 +156,6 @@ class LanguageProvider extends ChangeNotifier {
       'info_screen_': 'ИНФОРМАЦИОННЫЙ ЭКРАН',
       'screen_brightness': 'ЯРКОСТЬ ЭКРАНА',
       'add_content': 'ДОБАВИТЬ КОНТЕНТ',
-      'meeting_topic': 'Тема собрания',
-      'project_evaluation': 'Оценка проекта и процессы разработки',
-      'budget_planning': 'Планирование бюджета',
       'excellent': 'ОТЛИЧНО',
       'good': 'ХОРОШО',
       'average': 'СРЕДНЕ',
@@ -175,6 +172,9 @@ class LanguageProvider extends ChangeNotifier {
       'select_video': 'Выбрать видео',
       'select_document': 'Выбрать документ',
       'document_selection': 'Функция выбора документа будет добавлена',
+      'connection_failed':'Нет подключения, данные не могут быть отправлены',
+      'data_sent_success':'Данные успешно отправлены',
+      'data_send_failed': 'Не удалось отправить данные'
     },
     'ar': {
       'name_screen': 'شاشة الأسماء',
@@ -208,9 +208,6 @@ class LanguageProvider extends ChangeNotifier {
       'info_screen': '3. شاشة المعلومات',
       'screen_brightness': 'سطوع الشاشة',
       'add_content': 'إضافة محتوى',
-      'meeting_topic': 'موضوع الاجتماع',
-      'project_evaluation': 'تقييم المشروع وعمليات التطوير',
-      'budget_planning': 'تخطيط الميزانية',
       'excellent': 'ممتاز',
       'good': 'جيد',
       'average': 'متوسط',
@@ -227,6 +224,9 @@ class LanguageProvider extends ChangeNotifier {
       'select_video': 'اختر فيديو',
       'select_document': 'اختر مستند',
       'document_selection': 'سيتم إضافة ميزة اختيار المستند',
+      'connection_failed': 'لا يوجد اتصال، لا يمكن إرسال البيانات',
+      'data_sent_success':'تم إرسال البيانات بنجاح',
+      'data_send_failed': 'فشل إرسال البيانات'
     },
   };
 

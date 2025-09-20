@@ -19,25 +19,22 @@ class InfoScreen extends StatefulWidget {
 class _InfoScreenState extends State<InfoScreen> {
   final List<Map<String, dynamic>> contents = [
     {
-      "title": "meeting_topic",
+      "title": "Toplantı Gündemi",
+      "startTime": "00:13:00",
+      "endTime": "00:14:30",
+      "type": "document",
+    },
+    {
+      "title": "Proje Değerlendirme",
       "startTime": "00:15:00",
-      "endTime": "00:30:00",
+      "endTime": "00:15:45",
       "type": "document",
-      "file": null,
     },
     {
-      "title": "project_evaluation",
-      "startTime": "00:30:00",
-      "endTime": "01:00:00",
+      "title": "Bütçe Planlaması",
+      "startTime": "00:16:00",
+      "endTime": "00:17:45",
       "type": "document",
-      "file": null,
-    },
-    {
-      "title": "budget_planning",
-      "startTime": "01:00:00",
-      "endTime": "01:30:00",
-      "type": "document",
-      "file": null,
     },
   ];
 
@@ -45,6 +42,7 @@ class _InfoScreenState extends State<InfoScreen> {
   final TextEditingController _startTimeController = TextEditingController();
   final TextEditingController _endTimeController = TextEditingController();
   File? _selectedFile;
+  String? _selectedFileName;
   final ImagePicker _picker = ImagePicker();
 
   @override
@@ -98,6 +96,7 @@ class _InfoScreenState extends State<InfoScreen> {
                   if (image != null) {
                     setState(() {
                       _selectedFile = File(image.path);
+                      _selectedFileName = image.name;
                     });
                   }
                 },
@@ -112,6 +111,7 @@ class _InfoScreenState extends State<InfoScreen> {
                   if (video != null) {
                     setState(() {
                       _selectedFile = File(video.path);
+                      _selectedFileName = video.name;
                     });
                   }
                 },
@@ -142,6 +142,7 @@ class _InfoScreenState extends State<InfoScreen> {
       if (result != null && result.files.single.path != null) {
         setState(() {
           _selectedFile = File(result.files.single.path!);
+          _selectedFileName = result.files.single.name;
         });
       }
     } catch (e) {
@@ -156,6 +157,7 @@ class _InfoScreenState extends State<InfoScreen> {
     _startTimeController.text = '00:15:00';
     _endTimeController.text = '00:30:00';
     _selectedFile = null;
+    _selectedFileName = null;
 
     showDialog(
       context: context,
@@ -177,9 +179,18 @@ class _InfoScreenState extends State<InfoScreen> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(languageProvider.getTranslation('meeting_topic'),
-                      style:
-                      TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                  // Başlık ve Kapatma Butonu
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(languageProvider.getTranslation('meeting_topic'),
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                      IconButton(
+                        icon: Icon(Icons.close, color: _getGreyColor(600)),
+                        onPressed: () => Navigator.of(context).pop(),
+                      ),
+                    ],
+                  ),
                   const SizedBox(height: 8),
                   TextField(
                     controller: _titleController,
@@ -198,6 +209,7 @@ class _InfoScreenState extends State<InfoScreen> {
                   ),
                   const SizedBox(height: 16),
 
+                  // Dosya Seçme Butonu
                   ElevatedButton(
                     onPressed: _pickFile,
                     style: ElevatedButton.styleFrom(
@@ -216,20 +228,67 @@ class _InfoScreenState extends State<InfoScreen> {
                       ],
                     ),
                   ),
+
+                  // Seçilen Dosya Bilgisi - DOSYA ADI GÖSTERİMİ
                   if (_selectedFile != null) ...[
-                    const SizedBox(height: 8),
-                    Text(
-                      '${languageProvider.getTranslation('file_selected')}: ${_selectedFile!.path.split('/').last}',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: _getGreyColor(600),
+                    const SizedBox(height: 12),
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: _getGreyColor(100),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: _getGreyColor(300)),
                       ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                      child: Row(
+                        children: [
+                          Icon(
+                            _getFileTypeIcon(_selectedFile!.path),
+                            color: _getFileTypeColor(_selectedFile!.path),
+                            size: 24,
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Dosya: ${_selectedFileName ?? _selectedFile!.path.split('/').last}',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                    color: _getGreyColor(700),
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  _getFileTypeText(_selectedFile!.path),
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: _getGreyColor(600),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          IconButton(
+                            icon: Icon(Icons.close, size: 20, color: _getGreyColor(600)),
+                            onPressed: () {
+                              setState(() {
+                                _selectedFile = null;
+                                _selectedFileName = null;
+                              });
+                            },
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                   const SizedBox(height: 16),
 
+                  // Zaman Alanları
                   Row(
                     children: [
                       Expanded(
@@ -288,6 +347,8 @@ class _InfoScreenState extends State<InfoScreen> {
                     ],
                   ),
                   const SizedBox(height: 24),
+
+                  // Kaydet ve İptal Butonları
                   Row(
                     children: [
                       Expanded(
@@ -296,6 +357,7 @@ class _InfoScreenState extends State<InfoScreen> {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: _getGreyColor(400),
                             foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 16),
                           ),
                           child: Text(languageProvider.getTranslation('cancel')),
                         ),
@@ -310,6 +372,7 @@ class _InfoScreenState extends State<InfoScreen> {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF4DB6AC),
                             foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 16),
                           ),
                           child: Text(languageProvider.getTranslation('save')),
                         ),
@@ -325,8 +388,67 @@ class _InfoScreenState extends State<InfoScreen> {
     );
   }
 
+  // Dosya tipine göre icon belirleme
+  IconData _getFileTypeIcon(String filePath) {
+    final ext = filePath.split('.').last.toLowerCase();
+    if (["jpg", "jpeg", "png", "gif", "bmp"].contains(ext)) {
+      return Icons.photo;
+    } else if (["mp4", "mov", "avi", "mkv", "wmv"].contains(ext)) {
+      return Icons.videocam;
+    } else if (["pdf"].contains(ext)) {
+      return Icons.picture_as_pdf;
+    } else if (["doc", "docx"].contains(ext)) {
+      return Icons.description;
+    } else if (["xls", "xlsx"].contains(ext)) {
+      return Icons.table_chart;
+    } else if (["ppt", "pptx"].contains(ext)) {
+      return Icons.slideshow;
+    } else if (["txt"].contains(ext)) {
+      return Icons.text_snippet;
+    } else {
+      return Icons.insert_drive_file;
+    }
+  }
+
+  // Dosya tipine göre renk belirleme
+  Color _getFileTypeColor(String filePath) {
+    final ext = filePath.split('.').last.toLowerCase();
+    if (["jpg", "jpeg", "png", "gif", "bmp"].contains(ext)) {
+      return Colors.amber;
+    } else if (["mp4", "mov", "avi", "mkv", "wmv"].contains(ext)) {
+      return Colors.red;
+    } else if (["pdf"].contains(ext)) {
+      return Colors.redAccent;
+    } else {
+      return Colors.blue;
+    }
+  }
+
+  // Dosya tipine göre metin belirleme
+  String _getFileTypeText(String filePath) {
+    final ext = filePath.split('.').last.toLowerCase();
+    if (["jpg", "jpeg", "png", "gif", "bmp"].contains(ext)) {
+      return "Fotoğraf";
+    } else if (["mp4", "mov", "avi", "mkv", "wmv"].contains(ext)) {
+      return "Video";
+    } else if (["pdf"].contains(ext)) {
+      return "PDF Dokümanı";
+    } else if (["doc", "docx"].contains(ext)) {
+      return "Word Dokümanı";
+    } else if (["xls", "xlsx"].contains(ext)) {
+      return "Excel Tablosu";
+    } else if (["ppt", "pptx"].contains(ext)) {
+      return "PowerPoint Sunumu";
+    } else if (["txt"].contains(ext)) {
+      return "Metin Dosyası";
+    } else {
+      return "Dosya";
+    }
+  }
+
   void _saveContent(BuildContext context) {
     final languageProvider = Provider.of<LanguageProvider>(context, listen: false);
+    final bluetoothProvider = Provider.of<BluetoothProvider>(context, listen: false);
 
     if (_titleController.text.trim().isEmpty ||
         _startTimeController.text.trim().isEmpty ||
@@ -359,20 +481,38 @@ class _InfoScreenState extends State<InfoScreen> {
         fileType = "photo";
       } else if (["mp4", "mov", "avi"].contains(ext)) {
         fileType = "video";
-      } else if (["pdf", "doc", "docx", "txt", "ppt", "pptx", "xls", "xlsx"].contains(ext)) {
+      } else if (["pdf", "doc", "docx", "txt", "ppt", 'pptx', 'xls', 'xlsx'].contains(ext)) {
         fileType = "document";
       }
     }
 
+    String title = _titleController.text.trim();
+
     setState(() {
       contents.add({
-        "title": _titleController.text.trim(),
+        "title": title,
         "startTime": startTimeText,
         "endTime": endTimeText,
         "type": fileType,
-        "file": _selectedFile,
       });
+
+      // Seçilen dosya bilgilerini sıfırla
+      _selectedFile = null;
+      _selectedFileName = null;
     });
+
+    // JSON verisini hazırla ve gönder (operation: 1 - İçerik ekleme)
+    Map<String, dynamic> jsonData = {
+      "operation": 1, // 1: İçerik ekleme işlemi
+      "title": title,
+      "startTime": startTimeText,
+      "endTime": endTimeText,
+      "fileType": fileType,
+      "fileName": _selectedFileName ?? (_selectedFile != null ? _selectedFile!.path.split('/').last : "")
+    };
+
+    // Bluetooth'a JSON verisini gönder
+    bluetoothProvider.sendJsonData(jsonData, context);
 
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Text(languageProvider.getTranslation('content_added_success')),
@@ -453,8 +593,7 @@ class _InfoScreenState extends State<InfoScreen> {
                                 SizedBox(width: screenWidth * 0.03),
                                 Expanded(
                                   child: Text(
-                                    languageProvider.getTranslation
-                                      ('info_screen_'),
+                                    languageProvider.getTranslation('info_screen_'),
                                     style: TextStyle(
                                       fontSize: screenWidth * 0.045,
                                       fontWeight: FontWeight.w700,
@@ -510,11 +649,10 @@ class _InfoScreenState extends State<InfoScreen> {
                           itemBuilder: (context, index) {
                             final content = contents[index];
                             return ContentCard(
-                              title: languageProvider.getTranslation(content['title']),
+                              title: content['title'], // Dil çevirisi olmadan direkt göster
                               startTime: content['startTime']!,
                               endTime: content['endTime']!,
                               type: content['type']!,
-                              file: content['file'],
                               onDelete: () => _deleteContent(index),
                               getGreyColor: _getGreyColor,
                             );
@@ -540,7 +678,6 @@ class ContentCard extends StatefulWidget {
   final String startTime;
   final String endTime;
   final String type;
-  final File? file;
   final VoidCallback onDelete;
   final Color Function(int) getGreyColor;
 
@@ -550,7 +687,6 @@ class ContentCard extends StatefulWidget {
     required this.startTime,
     required this.endTime,
     required this.type,
-    this.file,
     required this.onDelete,
     required this.getGreyColor,
   }) : super(key: key);
@@ -564,7 +700,7 @@ class _ContentCardState extends State<ContentCard> {
 
   void _togglePlay() {
     setState(() {
-      _isPlaying = !_isPlaying;
+      _isPlaying  = !_isPlaying;
     });
   }
 
@@ -615,78 +751,79 @@ class _ContentCardState extends State<ContentCard> {
       ),
       child: Padding(
         padding: EdgeInsets.all(screenWidth * 0.04),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Icon(
-                  _getIconForType(widget.type),
-                  color: _getColorForType(widget.type),
-                  size: screenWidth * 0.07,
-                ),
-                SizedBox(width: screenWidth * 0.03),
-                Expanded(
-                  child: Text(
-                    widget.title,
-                    style: TextStyle(
-                      fontSize: screenWidth * 0.04,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black,
-                    ),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(
+                        _getIconForType(widget.type),
+                        color: _getColorForType(widget.type),
+                        size: screenWidth * 0.06,
+                      ),
+                      SizedBox(width: screenWidth * 0.02),
+                      Expanded(
+                        child: Text(
+                          widget.title,
+                          style: TextStyle(
+                            fontSize: screenWidth * 0.04,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    GestureDetector(
-                      onTap: _togglePlay,
-                      child: Icon(
-                        _isPlaying ? Icons.pause : Icons.play_arrow,
-                        color: Colors.grey[700],
-                        size: screenWidth * 0.06,
+                  SizedBox(height: screenHeight * 0.005),
+                  Row(
+                    children: [
+                      Icon(Icons.access_time,
+                          size: screenWidth * 0.035, color: widget.getGreyColor(600)),
+                      SizedBox(width: screenWidth * 0.01),
+                      Text(
+                        "${widget.startTime} - ${widget.endTime}",
+                        style: TextStyle(
+                            fontSize: screenWidth * 0.032,
+                            color: widget.getGreyColor(600)),
                       ),
-                    ),
-                    SizedBox(width: screenWidth * 0.02),
-                    GestureDetector(
-                      onTap: widget.onDelete,
-                      child: Icon(
-                        Icons.close,
-                        color: Colors.red,
-                        size: screenWidth * 0.06,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            SizedBox(height: screenHeight * 0.005),
-            Row(
-              children: [
-                Icon(Icons.access_time,
-                    size: screenWidth * 0.045, color: widget.getGreyColor(600)),
-                SizedBox(width: screenWidth * 0.01),
-                Text(
-                  "${widget.startTime} - ${widget.endTime}",
-                  style: TextStyle(
-                      fontSize: screenWidth * 0.035,
-                      color: widget.getGreyColor(600)),
-                ),
-              ],
-            ),
-            if (widget.file != null) ...[
-              SizedBox(height: screenHeight * 0.005),
-              Text(
-                "Dosya: ${widget.file!.path.split('/').last}",
-                style: TextStyle(
-                  fontSize: screenWidth * 0.03,
-                  color: widget.getGreyColor(600),
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
+                    ],
+                  ),
+                ],
               ),
-            ],
+            ),
+
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  onPressed: _togglePlay,
+                  icon: Icon(
+                    _isPlaying ? Icons.pause : Icons.play_arrow,
+                    color: Colors.grey[700],
+                    size: screenWidth * 0.055,
+                  ),
+                  padding: EdgeInsets.zero,
+                  constraints: BoxConstraints(),
+                ),
+                SizedBox(width: screenWidth * 0.02),
+                IconButton(
+                  onPressed: widget.onDelete,
+                  icon: Icon(
+                    Icons.close,
+                    color: Colors.red,
+                    size: screenWidth * 0.055,
+                  ),
+                  padding: EdgeInsets.zero,
+                  constraints: BoxConstraints(),
+                ),
+              ],
+            ),
           ],
         ),
       ),

@@ -160,6 +160,7 @@ class _ManagementState extends State<Management> {
 
   void _saveSpeaker(BuildContext context) {
     final languageProvider = Provider.of<LanguageProvider>(context, listen: false);
+    final bluetoothProvider = Provider.of<BluetoothProvider>(context, listen: false);
 
     if (_departmentController.text.trim().isEmpty ||
         _nameController.text.trim().isEmpty ||
@@ -181,13 +182,25 @@ class _ManagementState extends State<Management> {
       return;
     }
 
+    String department = _departmentController.text.trim();
+    String name = _nameController.text.trim();
+
     setState(() {
       speakers.add({
-        "title": _departmentController.text.trim(),
-        "person": _nameController.text.trim(),
+        "title": department,
+        "person": name,
         "time": timeText,
       });
     });
+
+    Map<String, dynamic> jsonData = {
+      "operation": 0,
+      "department": department,
+      "name": name,
+      "duration": timeText
+    };
+
+    bluetoothProvider.sendJsonData(jsonData, context);
 
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Text(languageProvider.getTranslation('added_success')),
